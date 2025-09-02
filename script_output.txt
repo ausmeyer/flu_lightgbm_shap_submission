@@ -1,0 +1,323 @@
+✓ Output directory ready: ./output_figures
+Loading metadata from: ./gisaid_metadata_raw.csv
+✓ Metadata loaded: 72,690 sequences, 63 columns
+Loading sequences from: ./H3_prot.fasta
+✓ Sequences loaded: 64,418 records
+Data validation:
+  Unique IDs in metadata: 72,690
+  Unique IDs in sequences: 64,418
+Parsing passage history (this may take a while)...
+Parsing passage history for 72,690 sequences...
+✓ Passage history parsing complete
+✓ Data cached to: ./passages.pkl
+✓ Passage history parsed and cached
+Consolidating metadata with location and time data...
+  Date range: 1968-01-02 to 2021-01-14
+✓ Metadata consolidation complete: 72,690 records
+Filtering and cleaning data for model training...
+  After initial filtering: 42,257 sequences
+  Removing 3,136 sequences with multiple passages
+  After sequence validation: 39,121 sequences (length=566, no gaps)
+✓ Data filtering complete: 39,121 sequences ready for modeling
+
+Passage type distribution:
+  UNPASSAGED: 20,109 (51.4%)
+  SIAT: 12,802 (32.7%)
+  MDCK: 3,386 (8.7%)
+  MONKEYKIDNEY: 2,338 (6.0%)
+  EGG: 485 (1.2%)
+  VERO: 1 (0.0%)
+
+✓ Final dataset ready: 39,121 sequences for modeling
+Generating collection date histogram...
+  ✓ Saved: ./output_figures/figure_1_collection_date_histogram.pdf
+✓ Location mappings loaded from cache
+✓ Country lookup loaded from cache
+✓ Geographic coordinates added: 39121/39121 entries geocoded
+
+Analyzing sequence variability...
+Generating sequence variability plots...
+  ✓ Saved: ./output_figures/figure_2_sequence_variability.pdf
+Preparing features for 39,121 sequences (include_time=True)...
+  Fitting One-Hot Encoder for sequence features...
+✓ Feature preparation complete: 39,121 samples, 2,260 features
+
+Warning: The following classes have fewer than 2 samples and will be removed before splitting:
+  - Class 'VERO': 1 sample(s)
+Removing 1 samples belonging to rare classes.
+
+Preparing train/test split:
+  Total samples: 39120
+  Unique classes in y_passage: 5
+  Class distribution: {'UNPASSAGED': 20109, 'SIAT': 12802, 'MDCK': 3386, 'MONKEYKIDNEY': 2338, 'EGG': 485}
+  Training set size: 31296
+  Test set size: 7824
+  Training classes: 5
+
+Passage model dataset: 31,296 train, 7,824 test
+
+Train set passage distribution:
+  UNPASSAGED: 51.4%
+  SIAT: 32.7%
+  MDCK: 8.7%
+  MONKEYKIDNEY: 6.0%
+  EGG: 1.2%
+
+Test set passage distribution:
+  UNPASSAGED: 51.4%
+  SIAT: 32.7%
+  MDCK: 8.7%
+  MONKEYKIDNEY: 6.0%
+  EGG: 1.2%
+Loading cached Bayesian optimization results...
+✓ Cache loaded: ./bayes_fit_passage_classification_lgbm.pkl
+✓ Best parameters loaded from cache (score=0.7835)
+
+=== Training LightGBM Classifier ===
+✓ Model training complete
+
+Classification Performance:
+  Test Set:  Accuracy = 0.810, Balanced Accuracy = 0.769
+  Train Set: Accuracy = 0.827, Balanced Accuracy = 0.783
+  Macro-averaged: Precision = 0.865, Recall = 0.769, F1 = 0.806
+Generating raw count confusion matrix...
+  ✓ Saved: ./output_figures/figure_3_passage_confusion_matrix_raw.pdf
+Generating normalized confusion matrix...
+  ✓ Saved: ./output_figures/figure_4_passage_confusion_matrix_normalized.pdf
+
+Calculating SHAP values for passage prediction model...
+Filtering 'N/A' labels from passage SHAP results for plotting stacked importance...
+Generating stacked feature importance plot...
+  ✓ Saved: ./output_figures/figure_5_passage_feature_importance_stacked.pdf
+
+--- Validating top SHAP feature with contingency table analysis ---
+
+=== Contingency Table Analysis: Site 160 ===
+
+Contingency Table (observed counts):
+amino_acid     A   I     K  N  Q  R  S      T
+passage                                      
+EGG            8  21   436  0  0  1  0     19
+MDCK           3   8  2679  2  0  1  0    693
+MONKEYKIDNEY  10  11  1202  0  0  3  0   1112
+SIAT           8  26  3084  1  3  4  1   9675
+UNPASSAGED     3  42  5745  0  3  5  0  14311
+VERO           0   0     1  0  0  0  0      0
+
+Chi-squared independence test:
+  χ² = 5507.5674
+  p-value = 0
+  df = 35
+  Result: Highly significant association (p < 0.001)
+
+--- Saving Passage Model SHAP Values to CSV ---
+Loading evolutionary rate data from: ./H3_prot_unpassaged_leisr.csv
+✓ Evolutionary rates loaded: 566 sites
+
+Loading FUBAR data from ./H3_nuc_unpassaged_fubar.csv...
+  Raw data shape: (566, 3)
+  Site range: 1 - 566
+✓ FUBAR data loaded: 566 sites
+  dN/dS range: 0.002 - 11.939
+  Mean dN/dS: 0.342
+  Median dN/dS: 0.125
+  Sites with dN/dS > 1: 46
+✓ Saved Passage SHAP values to results/passage_shap_values.csv (2167 rows)
+
+--- Preparing Data for Date Prediction (Unpassaged Sequences) ---
+Number of UNPASSAGED sequences: 20109
+Preparing features for 20,109 sequences (include_time=False)...
+  Transforming sequence features with existing encoder...
+✓ Feature preparation complete: 20,109 samples, 2,259 features
+Date Model Split: Train=16087, Test=4022
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.024815 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 1090
+[LightGBM] [Info] Number of data points in the train set: 16087, number of used features: 545
+[LightGBM] [Info] Start training from score 9.801300
+
+--- Feature subset performance (Tip‑date model) ---
+  Sequence‑only R² : 0.975
+  Geo‑only      R² : 0.128
+
+
+
+Using hardcoded parameters for LGBMRegressor (Date Model).
+
+=== Training LightGBM Regressor ===
+✓ Model training complete
+
+Regression Performance (log scale):
+  Test Set:  R² = 0.979, MSE = 0.000, MAE = 0.004
+  Train Set: R² = 0.987
+  Days scale: MAE = 74.5 days
+
+--- Hash Group Split Date Model (No Data Leakage) ---
+Training model with identical sequences kept in same fold...
+
+=== Hash Group Split (train_size=0.8) ===
+  Total samples: 20109
+  Unique sequence patterns: 5600
+  Duplication ratio: 3.6x
+  Hash group split: 13930 train, 6179 test
+  Train groups: 4480, Test groups: 1120
+
+=== Training LightGBM Regressor ===
+✓ Model training complete
+
+Regression Performance (log scale):
+  Test Set:  R² = 0.972, MSE = 0.000, MAE = 0.005
+  Train Set: R² = 0.988
+  Days scale: MAE = 83.1 days
+
+=== Hash Group Split Results (Original Scale) ===
+  R² = 0.970
+  MAE = 83.1 days
+  For manuscript: 'tip-date R² = 0.97, MAE = 83 d'
+
+--- Comparing Root-to-Tip Distance with Predicted Dates ---
+Matched tips for root-to-tip analysis: 4017 / 4022
+Root-to-tip vs predicted date: r = 0.940, p = 0.00e+00
+Generating predicted vs actual date plot...
+  ✓ Saved: ./output_figures/figure_7_date_prediction_vs_actual.pdf
+Generating residual analysis plots...
+  ✓ Saved residual plots
+
+Calculating SHAP values for date prediction model...
+Generating feature importance bar plot...
+  ✓ Saved: ./output_figures/figure_10_date_feature_importance_aa.pdf
+Generating regressor stacked importance plot...
+  ✓ Saved: ./output_figures/figure_11_date_feature_importance_site.pdf
+
+--- Saving Date Model SHAP Values to CSV ---
+Loading evolutionary rate data from: ./H3_prot_unpassaged_leisr.csv
+✓ Evolutionary rates loaded: 566 sites
+
+Loading FUBAR data from ./H3_nuc_unpassaged_fubar.csv...
+  Raw data shape: (566, 3)
+  Site range: 1 - 566
+✓ FUBAR data loaded: 566 sites
+  dN/dS range: 0.002 - 11.939
+  Mean dN/dS: 0.342
+  Median dN/dS: 0.125
+  Sites with dN/dS > 1: 46
+✓ Saved Date SHAP values to results/date_shap_values.csv (2167 rows)
+
+--- Preparing Data for Correlation Analysis ---
+✓ Entropy data prepared: 566 sites
+
+Loading FUBAR data from ./H3_nuc_unpassaged_fubar.csv...
+  Raw data shape: (566, 3)
+  Site range: 1 - 566
+✓ FUBAR data loaded: 566 sites
+  dN/dS range: 0.002 - 11.939
+  Mean dN/dS: 0.342
+  Median dN/dS: 0.125
+  Sites with dN/dS > 1: 46
+
+=== Correlation Analysis: Passage Model ===
+  Analyzing SHAP vs Entropy (550 sites)...
+Generating correlation plot (entropy vs shap_sum)...
+  Spearman correlation: ρ = 0.895, p = 8.39e-194
+  ✓ Saved rank correlation plot: ./output_figures/figure_12_passage_shap_vs_entropy.pdf
+  Analyzing SHAP vs Evolutionary Rate (LEISR) (550 sites)...
+Generating correlation plot (erate vs shap_sum)...
+  Spearman correlation: ρ = 0.833, p = 4.72e-143
+  ✓ Saved rank correlation plot: ./output_figures/figure_13_passage_shap_vs_erate.pdf
+  Debug: SHAP sites range: 17 - 566
+  Debug: FUBAR sites range: 1 - 566
+  Debug: SHAP unique sites: 550
+  Debug: FUBAR unique sites: 566
+  Analyzing SHAP vs dN/dS (FUBAR) (550 sites)...
+  Debug: Merged data - SHAP range: 0.000 - 0.317
+  Debug: Merged data - dN/dS range: 0.002 - 11.939
+  Debug: Overlapping sites: 550
+Generating correlation plot (dN_dS vs shap_sum)...
+  Spearman correlation: ρ = 0.770, p = 4.34e-109
+  ✓ Saved rank correlation plot: ./output_figures/figure_14_passage_shap_vs_dnds.pdf
+
+=== Correlation Analysis: Date Model ===
+  Analyzing SHAP vs Entropy (550 sites)...
+Generating correlation plot (entropy vs shap_sum)...
+  Spearman correlation: ρ = 0.755, p = 1.39e-102
+  ✓ Saved rank correlation plot: ./output_figures/figure_15_date_shap_vs_entropy.pdf
+  Analyzing SHAP vs Evolutionary Rate (LEISR) (550 sites)...
+Generating correlation plot (erate vs shap_sum)...
+  Spearman correlation: ρ = 0.699, p = 9.64e-82
+  ✓ Saved rank correlation plot: ./output_figures/figure_16_date_shap_vs_erate.pdf
+  Debug: SHAP sites range: 17 - 566
+  Debug: FUBAR sites range: 1 - 566
+  Debug: SHAP unique sites: 550
+  Debug: FUBAR unique sites: 566
+  Analyzing SHAP vs dN/dS (FUBAR) (550 sites)...
+  Debug: Merged data - SHAP range: 0.000 - 0.001
+  Debug: Merged data - dN/dS range: 0.002 - 11.939
+  Debug: Overlapping sites: 550
+Generating correlation plot (dN_dS vs shap_sum)...
+  Spearman correlation: ρ = 0.631, p = 2.32e-62
+  ✓ Saved rank correlation plot: ./output_figures/figure_17_date_shap_vs_dnds.pdf
+
+=== Creating Spearman Correlation Heatmap ===
+  Adding FUBAR data: 566 sites, 566 non-null values
+  Combined dataframe now has 566 sites
+  Metric columns for heatmap: ['Entropy', 'LEISR', 'dN/dS', 'SHAP Passage', 'SHAP Date']
+  Combined dataframe shape: (566, 6)
+✓ Saved correlation heatmap: ./output_figures/figure_18_spearman_correlation_heatmap.pdf
+
+Spearman Correlation Summary:
+  Entropy vs LEISR: ρ = 0.927 (p = 1.04e-242)
+  Entropy vs dN/dS: ρ = 0.853 (p = 4.63e-161)
+  Entropy vs SHAP Passage: ρ = 0.895 (p = 8.39e-194)
+  Entropy vs SHAP Date: ρ = 0.755 (p = 1.39e-102)
+  LEISR vs dN/dS: ρ = 0.923 (p = 1.42e-236)
+  LEISR vs SHAP Passage: ρ = 0.833 (p = 4.72e-143)
+  LEISR vs SHAP Date: ρ = 0.699 (p = 9.64e-82)
+  dN/dS vs SHAP Passage: ρ = 0.770 (p = 4.34e-109)
+  dN/dS vs SHAP Date: ρ = 0.631 (p = 2.32e-62)
+  SHAP Passage vs SHAP Date: ρ = 0.777 (p = 4.57e-112)
+
+--- Generating  Plots for Selected Sites ---
+Generating frequency plots for manually specified protein sites: [3, 121, 131, 142, 144, 193, 198, 225, 261, 311]
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 3...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_19_frequency_site_3.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 121...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_20_frequency_site_121.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 131...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_21_frequency_site_131.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 142...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_22_frequency_site_142.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 144...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_23_frequency_site_144.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 193...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_24_frequency_site_193.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 198...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_25_frequency_site_198.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 225...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_26_frequency_site_225.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 261...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_27_frequency_site_261.pdf
+Generating frequency over time plot...
+  Calculating frequencies for Amino Acid Frequency Over Time - Site 311...
+  ✓ Frequency calculation complete
+  ✓ Saved: ./output_figures/figure_28_frequency_site_311.pdf
+
+--- Analysis Script Finished ---
